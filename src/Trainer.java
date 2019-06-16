@@ -1,7 +1,18 @@
-public class Trainer {
+import javax.persistence.*;
 
+@Entity
+@Table(name = "Trainer")
+public class Trainer implements ISaveAndDelete {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "trainerId")
     int trainerId;
+
+    @Column(name = "name")
     String name;
+
+    @OneToOne
     Team team;
 
     public Trainer() {
@@ -30,5 +41,19 @@ public class Trainer {
 
     public void setTeam(Team team) {
         this.team = team;
+    }
+
+    @Override
+    public boolean saveToDB() {
+
+        if(!HibernateSupport.commit(this)){
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void deleteFromDB() {
+        HibernateSupport.deleteObject(this);
     }
 }

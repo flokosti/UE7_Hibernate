@@ -1,10 +1,24 @@
+
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
-public class Team {
+@Entity
+@Table(name = "Team")
+public class Team implements ISaveAndDelete{
 
+
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "teamId")
     int teamId;
+
+    @Column(name = "name")
     String name;
-    List <Player> playerList;
+
+    @OneToMany
+    List <Player> playerList = new ArrayList<Player>();
+
+    @OneToOne
     Trainer trainer;
 
     public Team() {
@@ -44,5 +58,23 @@ public class Team {
 
     public void addPlayer (Player player){
         playerList.add(player);
+    }
+
+    @Override
+    public boolean saveToDB() {
+        if(this.playerList!=null)
+            for(Player p : this.playerList)
+                p.saveToDB();
+        if(!HibernateSupport.commit(this))
+            return false;
+        return true;
+    }
+
+    @Override
+    public void deleteFromDB() {
+        if(this.playerList!=null)
+            for(Player p:this.playerList)
+                p.deleteFromDB();
+            HibernateSupport.deleteObject(this);
     }
 }
